@@ -1,4 +1,4 @@
-export const priceData = [
+export const dummyPriceData = [
     {
       time: '2018-10-19',
       open: 180.34,
