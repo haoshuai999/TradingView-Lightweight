@@ -1,7 +1,8 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import ReactDOM from 'react-dom';
 import { createChart, CrosshairMode } from 'lightweight-charts';
 import { dummyPriceData } from './priceData';
+import ResizeObserver from "resize-observer-polyfill";
 //import { volumeData } from './volumeData';
 //import { areaData } from './areaData';
 
@@ -24,27 +25,56 @@ const processData = (data) => {
 
   return result;
 }
-  
 
+// const useContainerDimensions = myRef => {
 
-export default function LineChart() {
+//   const getDimensions = () => ({
+//     width: myRef.current.offsetWidth,
+//     height: myRef.current.offsetHeight
+//   })
+
+//   const [dimensions, setDimensions] = useState({ width: 0, height: 0 })
+
+//   useEffect(() => {
+//     const handleResize = () => {
+//       setDimensions(getDimensions())
+//     }
+
+//     if (myRef.current) {
+//       setDimensions(getDimensions())
+//     }
+
+//     window.addEventListener("resize", handleResize)
+
+//     return () => {
+//       window.removeEventListener("resize", handleResize)
+//     }
+//   }, [myRef])
+
+//   return dimensions;
+
+// };
+
+export default function LineChart({asset}) {
   const chartContainerRef = useRef();
   const chart = useRef();
   const resizeObserver = useRef();
 
-  const cors_head = "https://observable-cors.glitch.me/"
+  //const cors_head = "https://observable-cors.glitch.me/"
 
   const api_url =
-"https://production.api.coindesk.com/v2/price/values/BTC?start_date=2021-01-01T00:00&end_date=2021-12-01T00:00&ohlc=true";
+`https://production.api.coindesk.com/v2/price/values/${asset}?start_date=2021-01-01T00:00&end_date=2021-12-01T00:00&ohlc=true`;
   
-  //const priceData = useCdPriceData(api_url)
   //console.log(priceData)
   //console.log(dummyPriceData)
+  //const { width, height } = useContainerDimensions(chartContainerRef)
+
 
   useEffect(() => {
     chart.current = createChart(chartContainerRef.current, {
       width: chartContainerRef.current.clientWidth,
       height: chartContainerRef.current.clientHeight,
+      //height: 500,
       layout: {
         backgroundColor: '#262626',
         textColor: 'rgba(255, 255, 255, 0.9)',
@@ -68,8 +98,6 @@ export default function LineChart() {
       },
     });
 
-    console.log(chart.current);
-
     const candleSeries = chart.current.addCandlestickSeries({
       upColor: '#00D964',
       downColor: '#FF0000',
@@ -85,7 +113,8 @@ export default function LineChart() {
               candleSeries.setData(processData(data));
           });
     });
-    
+
+    //candleSeries.setData(dummyPriceData)
 
     // const areaSeries = chart.current.addAreaSeries({
     //   topColor: 'rgba(38,198,218, 0.56)',
@@ -117,7 +146,7 @@ export default function LineChart() {
     resizeObserver.current = new ResizeObserver(entries => {
       const { width, height } = entries[0].contentRect;
 
-      //console.log(entries)
+      console.log(height)
 
       chart.current.applyOptions({ width, height });
       setTimeout(() => {
